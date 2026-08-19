@@ -5,7 +5,7 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/your-name/dsh-archived-sessions.git"
+    "url": "git+https://github.com/Jiangdl0220/dsh-archived-sessions.git"
   },
   "publishConfig": {
     "access": "public"
