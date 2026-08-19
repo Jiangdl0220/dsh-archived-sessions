@@ -18,7 +18,7 @@ Once a session is archived in DSH it disappears from every surface with no way b
 
 ```bash
 # Desktop
-dsh plugin add dsh-archived-sessions
+dsh plugin add @jiangdl0220/dsh-archived-sessions
 
 # Or manually: add the package to the profile's dependencies and bundles, then restart.
 ```
