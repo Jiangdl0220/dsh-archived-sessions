@@ -14,7 +14,7 @@ import { SettingsSection, type ArchivedInjected } from './SettingsSection.tsx'
 import { adoptStyles } from './styles.ts'
 
 /** Cordis plugin name (the Loader entry and client bundle id). */
-export const name = '@jiangdl0220/dsh-archived-sessions'
+export const name = '@jiangdaoli/dsh-archived-sessions'
 
 /** Required services: Remote gateway, slot system, and locale. */
 export const inject = ['remote', 'slots', 'locale']

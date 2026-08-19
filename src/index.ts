@@ -19,7 +19,7 @@ import { TYPERT_MANIFEST } from './typert.ts'
 import { registerTombstones } from './settings.ts'
 
 /** Cordis plugin name (the Loader entry and client bundle id). */
-export const name = '@jiangdl0220/dsh-archived-sessions'
+export const name = '@jiangdaoli/dsh-archived-sessions'
 
 /** Services required before load: the Typert registry and the settings provider. */
 export const inject = ['typert', 'settings']

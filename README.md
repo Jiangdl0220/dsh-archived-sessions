@@ -18,7 +18,7 @@ DSH 中「归档会话」后，会话会从所有界面消失且无法找回。�
 
 ```bash
 # 桌面端
-dsh plugin add @jiangdl0220/dsh-archived-sessions
+dsh plugin add @jiangdaoli/dsh-archived-sessions
 
 # 或手动：把包加入 profile 的依赖与 bundles 后重启
 ```

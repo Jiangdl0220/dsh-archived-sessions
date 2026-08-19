@@ -1,9 +1,9 @@
 {
-  "name": "@jiangdl0220/dsh-archived-sessions",
+  "name": "@jiangdaoli/dsh-archived-sessions",
   "description": "View and manage archived sessions (browse archive, read transcripts, remove records) for the DeepSeek Harness web GUI",
   "version": "0.1.0",
   "entry": {
-    "name": "@jiangdl0220/dsh-archived-sessions",
+    "name": "@jiangdaoli/dsh-archived-sessions",
     "inject": []
   },
   "client": {
