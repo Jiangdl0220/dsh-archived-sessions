@@ -1,6 +1,6 @@
 {
   "name": "@jiangdaoli/dsh-archived-sessions",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "View and manage archived sessions in DSH: browse the archive, read full transcripts in a chat-style dialog (turns, reasoning, tool executions), and remove unwanted records. Works on desktop and web.",
   "type": "module",
   "repository": {
