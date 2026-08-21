@@ -1,0 +1,44 @@
+name: publish
+
+# Publish the package to npm via OIDC trusted publishing — no long-lived
+# npm token is used or required (npm deprecated bypass-2FA publish tokens;
+# see https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/).
+#
+# Before this workflow can authenticate, bind the package once on npm:
+#   npmjs.com → @jiangdaoli/dsh-archived-sessions → Settings → Publish Access
+#   → "GitHub Actions" → select this repository (Jiangdl0220/dsh-archived-sessions)
+#   → workflow name `publish` (this file) → add.
+# That binding requires an interactive npm session with 2FA.
+#
+# Trigger: push a tag (vX.Y.Z) or run the workflow manually. The published
+# version comes from package.json — bump it before tagging.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # npm OIDC trusted publishing
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Publish to npm
+        run: pnpm publish --no-git-checks
