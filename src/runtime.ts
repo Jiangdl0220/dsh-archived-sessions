@@ -13,6 +13,7 @@ import type {
   ArchivedSessionItem,
   ContentBlock,
   DeleteRequest,
+  RestoreRequest,
   SurfaceEvent,
   SurfaceRequest,
   SurfaceResult,
@@ -28,6 +29,17 @@ interface WorkspaceLike {
 interface WorkspaceRegistryLike {
   archivedSessionIds: string[]
   list(): WorkspaceLike[]
+}
+/** Storage-domain faces for the durable unarchive write (the workspace registry persists through the same domain). */
+interface WorkspaceDomainGlobal {
+  get(): unknown
+  set(value: unknown): Promise<unknown>
+}
+interface WorkspaceDomainLike {
+  global: WorkspaceDomainGlobal
+}
+interface StorageDomainLike {
+  get(name: string): WorkspaceDomainLike | undefined
 }
 interface TitleSnapshot {
   sessionId: string
@@ -226,6 +238,45 @@ export class ArchivedSessionsRuntime extends TypertRemoteService {
     const next = [...this.readDeleted(), request.sessionId]
     await this.persistDeleted(next)
     return { deleted: true }
+  }
+
+  /**
+   * Restore one archived session back to the active list (durable unarchive).
+   *
+   * DSH ships no unarchive API, so this writes through the workspace
+   * registry's own storage domain (`storageDomain.get('workspace').global`),
+   * removing the session id from `archivedSessionIds` on the same durable
+   * write chain the registry uses — the change is live for every surface and
+   * survives restart. A tombstone recorded by this plugin for the session is
+   * cleared so the session shows up again if it is re-archived later.
+   */
+  @Remote
+  async restore(request: RestoreRequest): Promise<{ restored: true }> {
+    const registry = this.ctx.get('workspaceRegistry') as WorkspaceRegistryLike | undefined
+    if (registry === undefined) throw new Error('workspaceRegistry service unavailable')
+    const archived = registry.archivedSessionIds
+    if (!Array.isArray(archived) || !archived.includes(request.sessionId)) {
+      throw new Error('session is not in the archive list')
+    }
+    const domain = this.ctx.get('storageDomain') as StorageDomainLike | undefined
+    if (domain === undefined) throw new Error('storageDomain service unavailable')
+    const workspace = domain.get('workspace')
+    if (workspace === undefined) throw new Error('workspace storage domain unavailable')
+    const state = workspace.global.get() as { archivedSessionIds?: string[] } | null
+    if (state === null || typeof state !== 'object' || !Array.isArray(state.archivedSessionIds)) {
+      throw new Error('workspace archive state is unavailable or malformed')
+    }
+    if (!state.archivedSessionIds.includes(request.sessionId)) {
+      throw new Error('session is not in the archive list')
+    }
+    await workspace.global.set({
+      ...state,
+      archivedSessionIds: state.archivedSessionIds.filter((id) => id !== request.sessionId),
+    })
+    if (this.readDeleted().has(request.sessionId)) {
+      await this.persistDeleted([...this.readDeleted()].filter((id) => id !== request.sessionId))
+    }
+    return { restored: true }
   }
 }
 

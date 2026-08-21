@@ -19,4 +19,5 @@ export interface ArchivedNamespaceFace {
   list(): Promise<RemoteResult<ArchivedSessionItem[]>>
   surface(request: { sessionId: string }): Promise<RemoteResult<SurfaceResult>>
   delete(request: { sessionId: string }): Promise<RemoteResult<{ deleted: true }>>
+  restore(request: { sessionId: string }): Promise<RemoteResult<{ restored: true }>>
 }

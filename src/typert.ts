@@ -19,7 +19,7 @@ export const TYPERT_MANIFEST: TypertContribution = {
       {
         key: 'archived',
         exportName: 'ArchivedSessionsRuntime',
-        description: 'List archived sessions, read their surface transcript, and remove archive records.',
+        description: 'List archived sessions, read their surface transcript, remove archive records, and restore sessions back to the active list.',
         tags: [],
         members: [
           {
@@ -36,6 +36,11 @@ export const TYPERT_MANIFEST: TypertContribution = {
             kind: 'method',
             name: 'delete',
             signature: 'delete(request: DeleteRequest): Promise<{ deleted: true }>',
+          },
+          {
+            kind: 'method',
+            name: 'restore',
+            signature: 'restore(request: RestoreRequest): Promise<{ restored: true }>',
           },
         ],
         types: [],

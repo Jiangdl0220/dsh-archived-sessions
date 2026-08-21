@@ -131,6 +131,18 @@ export const deleteResultSchema = z.object({
   deleted: z.literal(true),
 }).readonly()
 
+/** Restore one archived session back to the active list (durable unarchive). */
+export interface RestoreRequest {
+  readonly sessionId: string
+}
+export const restoreRequestSchema = z.object({
+  sessionId: sessionIdSchema,
+}).readonly()
+
+export const restoreResultSchema = z.object({
+  restored: z.literal(true),
+}).readonly()
+
 /** The archived Remote namespace's strict invocation descriptors. */
 export const ARCHIVED_INVOCATIONS: readonly InvocationDescriptor[] = [
   {
@@ -192,6 +204,30 @@ export const ARCHIVED_INVOCATIONS: readonly InvocationDescriptor[] = [
       mode: 'strict',
       typeSymbol: 'dsh-archived-sessions#DeleteResult',
       schema: deleteResultSchema,
+    },
+  },
+  {
+    id: 'dsh-archived-sessions#archived/restore',
+    service: 'archived',
+    namespace: 'archived',
+    method: 'restore',
+    invocation: { kind: 'direct' },
+    parameters: [
+      {
+        name: 'request',
+        wire: 'request',
+        source: 'json',
+        codec: {
+          mode: 'strict',
+          typeSymbol: 'dsh-archived-sessions#RestoreRequest',
+          schema: restoreRequestSchema,
+        },
+      },
+    ],
+    result: {
+      mode: 'strict',
+      typeSymbol: 'dsh-archived-sessions#RestoreResult',
+      schema: restoreResultSchema,
     },
   },
 ]

@@ -39,6 +39,7 @@ export function SettingsSection({ getRemote, t }: ArchivedSectionProps): ReactEl
     loading: false,
   })
   const [confirmId, setConfirmId] = useState<string | null>(null)
+  const [restoreConfirmId, setRestoreConfirmId] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
 
@@ -85,6 +86,30 @@ export function SettingsSection({ getRemote, t }: ArchivedSectionProps): ReactEl
     })
   }
 
+  const restore = (sessionId: string): void => {
+    setBusy(true)
+    setActionError(null)
+    const remote = getRemote()
+    if (remote === undefined) {
+      setBusy(false)
+      setActionError('Remote unavailable')
+      return
+    }
+    remote.restore({ sessionId }).then((result) => {
+      setBusy(false)
+      if (result.ok) {
+        setRestoreConfirmId(null)
+        bumpList()
+        if (viewer.sessionId === sessionId) closeViewer()
+      } else {
+        setActionError(result.error.message)
+      }
+    }).catch((error: unknown) => {
+      setBusy(false)
+      setActionError(String(error instanceof Error ? error.message : error))
+    })
+  }
+
   const items = list.items ?? []
   const rows: ReactElement[] = []
   rows.push(
@@ -110,25 +135,39 @@ export function SettingsSection({ getRemote, t }: ArchivedSectionProps): ReactEl
           fmtTime(item.updatedAt),
         ].filter((part) => part !== '').join(' · ')
         const title = item.title !== '' ? item.title : (item.corrupt ? t('corruptTitle') : t('untitled'))
-        const actions = confirmId === item.sessionId
+        const actions = restoreConfirmId === item.sessionId
           ? [
-            <button className="dsh_arch_btn dsh_arch_btn_danger" key="confirm" disabled={busy}
-              onClick={(event) => { event.stopPropagation(); remove(item.sessionId) }}>
-              {busy ? t('deleting') : t('confirmDelete')}
+            <button className="dsh_arch_btn" key="confirmRestore" disabled={busy}
+              onClick={(event) => { event.stopPropagation(); restore(item.sessionId) }}>
+              {busy ? t('restoring') : t('confirmRestore')}
             </button>,
-            <button className="dsh_arch_btn" key="cancel" onClick={(event) => { event.stopPropagation(); setConfirmId(null) }}>
+            <button className="dsh_arch_btn" key="cancel" onClick={(event) => { event.stopPropagation(); setRestoreConfirmId(null) }}>
               {t('cancel')}
             </button>,
           ]
-          : [
-            <button className="dsh_arch_btn" key="view" onClick={(event) => { event.stopPropagation(); openViewer(item.sessionId, item.title) }}>
-              {t('view')}
-            </button>,
-            <button className="dsh_arch_btn dsh_arch_btn_danger" key="delete"
-              onClick={(event) => { event.stopPropagation(); setConfirmId(item.sessionId) }}>
-              {t('delete')}
-            </button>,
-          ]
+          : confirmId === item.sessionId
+            ? [
+              <button className="dsh_arch_btn dsh_arch_btn_danger" key="confirm" disabled={busy}
+                onClick={(event) => { event.stopPropagation(); remove(item.sessionId) }}>
+                {busy ? t('deleting') : t('confirmDelete')}
+              </button>,
+              <button className="dsh_arch_btn" key="cancel" onClick={(event) => { event.stopPropagation(); setConfirmId(null) }}>
+                {t('cancel')}
+              </button>,
+            ]
+            : [
+              <button className="dsh_arch_btn" key="view" onClick={(event) => { event.stopPropagation(); openViewer(item.sessionId, item.title) }}>
+                {t('view')}
+              </button>,
+              <button className="dsh_arch_btn" key="restore"
+                onClick={(event) => { event.stopPropagation(); setActionError(null); setConfirmId(null); setRestoreConfirmId(item.sessionId) }}>
+                {t('restore')}
+              </button>,
+              <button className="dsh_arch_btn dsh_arch_btn_danger" key="delete"
+                onClick={(event) => { event.stopPropagation(); setActionError(null); setRestoreConfirmId(null); setConfirmId(item.sessionId) }}>
+                {t('delete')}
+              </button>,
+            ]
         return (
           <div className="dsh_arch_item" key={item.sessionId} onClick={() => openViewer(item.sessionId, item.title)}>
             <div className="dsh_arch_item_body">
