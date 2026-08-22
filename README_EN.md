@@ -25,14 +25,16 @@ Once a session is archived in DSH it disappears from every surface with no offic
 
 ## Install
 
+`dsh plugin` requires `--profile` (the runtime you are installing into):
+
 ```bash
-# Desktop / Web
+# DSH Desktop app
 dsh plugin --profile desktop add @jiangdaoli/dsh-archived-sessions
-# or
+# or dsh web
 dsh plugin --profile web add @jiangdaoli/dsh-archived-sessions
 ```
 
-After install + restart: **Settings → Archived Sessions**.
+(`desktop` is the profile the DSH Desktop app runs, `web` corresponds to `dsh web`; use your own profile name if you run a custom one.) After install + restart: **Settings → Archived Sessions**.
 
 > **Install from npm** (the package name above). This GitHub repo contains source only — the built `lib/` artifacts are produced by CI at release time, so installing straight from the repo would miss files. To install from source, run `pnpm install && pnpm build` first.
 
@@ -57,7 +59,7 @@ pnpm typecheck
 - Delete only removes the archive record; session data stays on disk (DSH never deletes session data).
 - Corrupt logs (seq gaps) are marked and opened with the readable portion.
 - Restore (un-archive) writes the workspace domain's `archivedSessionIds` — the single durable home of that data, shared with the product's archive action; session data is not touched.
-- "Continue the conversation" is out of scope; use DSH's built-in session Fork instead.
+- **Continue the conversation**: once restored, the session is back in the active sidebar list — open it and keep chatting (same session, same log, pick up right where it left off).
 
 ## License
 

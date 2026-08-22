@@ -25,14 +25,16 @@ DSH 中「归档会话」后，会话会从所有界面消失且没有官方入�
 
 ## 安装
 
+`dsh plugin` 必须指定 `--profile`（对应你要装到的运行环境）：
+
 ```bash
-# 桌面端 / Web 端
+# DSH Desktop 桌面应用
 dsh plugin --profile desktop add @jiangdaoli/dsh-archived-sessions
-# 或
+# 或 dsh web
 dsh plugin --profile web add @jiangdaoli/dsh-archived-sessions
 ```
 
-安装并重启后：**设置 → 已归档会话**。
+（`desktop` 是 DSH Desktop 应用使用的 profile 名，`web` 对应 `dsh web`；用了自定义 profile 就换成自己的名字。）安装后重启 DSH，在 **设置 → 已归档会话** 查看。
 
 > **请从 npm 安装**（上方的包名）。GitHub 仓库只包含源码，构建产物（`lib/`）在发布时由 CI 生成，从仓库直接安装会缺文件。从源码安装请先 `pnpm install && pnpm build`。
 
@@ -57,7 +59,7 @@ pnpm typecheck
 - 删除仅移除归档记录；会话数据保留在磁盘（DSH 从不删除会话数据）。
 - 日志损坏（seq 缺口）的会话会显示「日志损坏」标记，打开时展示可解析的部分内容。
 - 恢复（取消归档）写 workspace 存储域的 `archivedSessionIds`——这是该数据的唯一持久位置，与产品归档动作共用写入链；会话数据本身不被触碰。
-- 「继续对话」不在本插件范围；可先用 DSH 自带的会话 Fork 功能。
+- **继续对话**：恢复后会话回到侧边栏活跃列表，点开即可继续对话（原会话、原日志，直接接着聊）。
 
 ## License
 
