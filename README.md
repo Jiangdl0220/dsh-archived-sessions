@@ -1,8 +1,14 @@
 # dsh-archived-sessions
 
-> 查看和管理 DSH（DeepSeek Harness）中已归档的会话：浏览归档列表、在聊天式弹窗里阅读完整对话（轮次 / 推理 / 工具执行 / Markdown 表格），以及删除不再需要的归档记录。桌面端与 Web 端通用。
+> 查看、**恢复**和删除 DSH（DeepSeek Harness）中已归档的会话：在设置页找回归档列表、阅读完整对话（轮次 / 推理 / 工具执行 / Markdown 表格），一键把归档会话**恢复回侧边栏活跃列表**。桌面端与 Web 端通用。
 
-DSH 中「归档会话」后，会话会从所有界面消失且无法找回。这个插件在设置页新增「**已归档会话**」页面，把归档列表找回来。
+DSH 中「归档会话」后，会话会从所有界面消失且没有官方入口找回。这个插件在设置面板新增「**已归档会话**」页面，把归档列表找回来，并支持**取消归档（恢复）**。
+
+## 截图
+
+<!-- 把截图放到 docs/screenshots/ 后，在下方按 `![说明](docs/screenshots/文件名.png)` 填入 -->
+![已归档会话列表](docs/screenshots/archived-list.png)
+![会话详情弹窗（含恢复按钮）](docs/screenshots/archived-viewer.png)
 
 ## 功能
 
@@ -12,19 +18,31 @@ DSH 中「归档会话」后，会话会从所有界面消失且无法找回。�
   - Markdown 渲染：标题、无序/有序列表、引用、链接、代码块（自动美化 JSON）、**表格**（可横向滚动）；
   - 工具执行以终端卡片展示：工具名、状态点（成功/失败）、`$` 命令行、可展开的输出；
   - 系统注入的消息（运行上下文快照、技能清单等）单独折叠，不会和用户消息混淆。
+- **恢复归档会话**（v0.2.0+）：两步确认，把归档会话**取消归档**，回到侧边栏活跃列表的原位置。
+  - 入口有两个：归档列表每个会话行右侧的「恢复」按钮；**v0.2.3 起**会话详情弹窗页脚也有「恢复」按钮。
+  - DSH 只有 `archiveSession` 没有取消归档 API，本插件通过 workspace 注册表自己的存储域（`storageDomain.get('workspace').global`）把会话 id 从 `archivedSessionIds` 移除——与产品归档共用同一条持久化写入链，改动实时生效、重启后保持，并会清除该会话在本插件中的墓碑记录。
 - **删除归档记录**：两步确认，从归档列表移除。DSH 产品本身没有会话删除 API，因此实现为「墓碑」——会话保持归档状态（产品 UI 永远隐藏它），数据文件保留在磁盘（与产品行为一致）。
-- **恢复归档会话**（v0.2.0+）：两步确认，把归档会话**取消归档**，回到侧边栏活跃列表的原位置。DSH 只有 `archiveSession` 没有取消归档 API，本插件通过 workspace 注册表自己的存储域（`storageDomain.get('workspace').global`）把会话 id 从 `archivedSessionIds` 移除——走同一条持久化写入链，改动实时生效、重启后保持，且会清除该会话在本插件中的墓碑记录。
 
 ## 安装
 
 ```bash
-# 桌面端
-dsh plugin add @jiangdaoli/dsh-archived-sessions
-
-# 或手动：把包加入 profile 的依赖与 bundles 后重启
+# 桌面端 / Web 端
+dsh plugin --profile desktop add @jiangdaoli/dsh-archived-sessions
+# 或
+dsh plugin --profile web add @jiangdaoli/dsh-archived-sessions
 ```
 
 安装并重启后：**设置 → 已归档会话**。
+
+> **请从 npm 安装**（上方的包名）。GitHub 仓库只包含源码，构建产物（`lib/`）在发布时由 CI 生成，从仓库直接安装会缺文件。从源码安装请先 `pnpm install && pnpm build`。
+
+## 工作原理
+
+- **Host 半部**（`src/index.ts` → `runtime.ts`）：通过官方 DSH 服务读取数据 —— `workspaceRegistry`（归档集合）、`sessionQuery`（标题 / 对话投影）、`sessionPersistence.readRaw`（损坏日志的宽松兜底）。经 Typert Remote 暴露 `archived/list`、`archived/surface`、`archived/delete`、`archived/restore`。
+  - 删除只写入插件自己的 settings 命名空间（墓碑）；
+  - 恢复通过 `storageDomain` 写入 workspace 域（从 `archivedSessionIds` 移除），从不改动会话数据本身。
+- **Client 半部**（`src/client/index.ts`）：挂载 Remote 命名空间，注册 `settings.section`（id `archived-sessions`）。查看器在设置面板内部渲染，天然处于最顶层。
+- **兼容性**：只使用官方 DSH contract，不注入任何 desktop 专属 service，桌面端 / Web / CLI 均可用。
 
 ## 开发
 
@@ -33,20 +51,6 @@ pnpm install
 pnpm build   # esbuild 单文件 host + client 产物到 lib/
 pnpm typecheck
 ```
-
-本地测试：
-
-```bash
-cd ~/.dsh/profiles/desktop
-pnpm add file:/path/to/dsh-archived-sessions
-# 在 package.json 的 dsh.profile.bundles 加入 "dsh-archived-sessions"，重启 App
-```
-
-## 架构
-
-- **Host 半部**（`src/index.ts` → `runtime.ts`）：通过官方 DSH 服务读取数据 —— `workspaceRegistry`（归档集合）、`sessionQuery`（标题 / 对话投影）、`sessionPersistence.readRaw`（损坏日志的宽松兜底）。经 Typert Remote 暴露 `archived/list`、`archived/surface`、`archived/delete`、`archived/restore`。删除只写入插件自己的 settings 命名空间（墓碑）；恢复通过 `storageDomain` 写入 workspace 域（取消归档），从不改动会话数据本身。
-- **Client 半部**（`src/client/index.ts`）：挂载 Remote 命名空间，注册 `settings.section`（id `archived-sessions`）。查看器在设置面板内部渲染，天然处于最顶层。
-- **兼容性**：只使用官方 DSH contract，不注入任何 desktop 专属 service，桌面端 / Web / CLI 均可用。
 
 ## 说明与限制
 
