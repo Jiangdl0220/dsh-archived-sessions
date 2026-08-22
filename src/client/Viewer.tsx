@@ -230,6 +230,7 @@ export const ArchivedViewer = ({ getRemote, t }: { getRemote: () => ArchivedName
     warning: string | null
   }>({ events: null, error: null, loading: false, partial: false, warning: null })
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [confirmRestore, setConfirmRestore] = useState(false)
   const [busy, setBusy] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
 
@@ -291,6 +292,29 @@ export const ArchivedViewer = ({ getRemote, t }: { getRemote: () => ArchivedName
     })
   }
 
+  const doRestore = (): void => {
+    setBusy(true)
+    setActionError(null)
+    const remote = getRemote()
+    if (remote === undefined) {
+      setBusy(false)
+      setActionError('Remote unavailable')
+      return
+    }
+    remote.restore({ sessionId }).then((result) => {
+      setBusy(false)
+      if (result.ok) {
+        bumpList()
+        closeViewer()
+      } else {
+        setActionError(result.error.message)
+      }
+    }).catch((error: unknown) => {
+      setBusy(false)
+      setActionError(String(error instanceof Error ? error.message : error))
+    })
+  }
+
   const body: ReactElement[] = []
   if (detail.warning !== null) {
     body.push(<div className="dsh_arch_banner" key="warning">{detail.warning}</div>)
@@ -328,9 +352,21 @@ export const ArchivedViewer = ({ getRemote, t }: { getRemote: () => ArchivedName
       </button>,
     )
     foot.push(<button className="dsh_arch_btn" key="cancel" onClick={() => setConfirmDelete(false)}>{t('cancel')}</button>)
+  } else if (confirmRestore) {
+    foot.push(
+      <button className="dsh_arch_btn" key="confirmRestore" onClick={doRestore} disabled={busy}>
+        {busy ? t('restoring') : t('confirmRestore')}
+      </button>,
+    )
+    foot.push(<button className="dsh_arch_btn" key="cancel" onClick={() => setConfirmRestore(false)}>{t('cancel')}</button>)
   } else {
     foot.push(
-      <button className="dsh_arch_btn dsh_arch_btn_danger" key="delete" onClick={() => setConfirmDelete(true)}>
+      <button className="dsh_arch_btn" key="restore"
+        onClick={() => { setActionError(null); setConfirmDelete(false); setConfirmRestore(true) }}>
+        {t('restore')}
+      </button>,
+      <button className="dsh_arch_btn dsh_arch_btn_danger" key="delete"
+        onClick={() => { setActionError(null); setConfirmRestore(false); setConfirmDelete(true) }}>
         {t('deleteSession')}
       </button>,
     )
