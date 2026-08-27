@@ -54,6 +54,8 @@ pnpm build      # esbuild single-file host + client artifacts into lib/
 pnpm typecheck
 ```
 
+Release process (local acceptance gate, CHANGELOG and Release-note steps): see [RELEASING.md](RELEASING.md).
+
 ## Notes & limitations
 
 - Delete only removes the archive record; session data stays on disk (DSH never deletes session data).

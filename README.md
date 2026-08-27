@@ -54,6 +54,8 @@ pnpm build   # esbuild 单文件 host + client 产物到 lib/
 pnpm typecheck
 ```
 
+发布流程（含本地验收门、CHANGELOG 与 Release 说明步骤）见 [RELEASING.md](RELEASING.md)。
+
 ## 说明与限制
 
 - 删除仅移除归档记录；会话数据保留在磁盘（DSH 从不删除会话数据）。
