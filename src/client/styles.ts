@@ -107,6 +107,44 @@ export const cssText = `
   padding: 1px 6px;
   white-space: nowrap;
 }
+.dsh_arch_filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.dsh_arch_search {
+  flex: 1;
+  min-width: 160px;
+  background: color-mix(in srgb, var(--dsw-alias-bg-layer-1, var(--dsw-alias-bg-layer-2)) 60%, transparent);
+  border: 1px solid var(--dsw-alias-border-l2);
+  color: inherit;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+.dsh_arch_search::placeholder {
+  color: var(--dsw-alias-label-dimmed);
+}
+.dsh_arch_search:focus {
+  border-color: var(--dsw-alias-label-tertiary);
+}
+.dsh_arch_pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+.dsh_arch_page_info {
+  font-size: 11px;
+  color: var(--dsw-alias-label-tertiary);
+  letter-spacing: 0.02em;
+}
 .dsh_arch_empty {
   color: var(--dsw-alias-label-tertiary);
   font-size: 12px;

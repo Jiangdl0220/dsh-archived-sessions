@@ -29,6 +29,17 @@ const fmtTime = (value: number | null): string => {
   }
 }
 
+/** Rows per page for the archive list. */
+const PAGE_SIZE = 10
+
+/** The title shown for an item (falls back for corrupt/untitled sessions). */
+const displayTitle = (item: ArchivedSessionItem, t: Translate): string =>
+  item.title !== '' ? item.title : (item.corrupt ? t('corruptTitle') : t('untitled'))
+
+/** The workspace label searched/filtered for an item. */
+const workspaceOf = (item: ArchivedSessionItem): string =>
+  item.workspace !== null ? item.workspace.title : (item.cwd ?? '')
+
 /** The archive list plus the inline viewer. */
 export function SettingsSection({ getRemote, t }: ArchivedSectionProps): ReactElement {
   const version = useListVersion()
@@ -42,6 +53,9 @@ export function SettingsSection({ getRemote, t }: ArchivedSectionProps): ReactEl
   const [restoreConfirmId, setRestoreConfirmId] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
+  const [query, setQuery] = useState('')
+  const [workspaceQuery, setWorkspaceQuery] = useState('')
+  const [page, setPage] = useState(1)
 
   const loadList = (): void => {
     setList({ items: null, error: null, loading: true })
@@ -111,6 +125,17 @@ export function SettingsSection({ getRemote, t }: ArchivedSectionProps): ReactEl
   }
 
   const items = list.items ?? []
+  const q = query.trim().toLowerCase()
+  const wq = workspaceQuery.trim().toLowerCase()
+  const hasFilter = q !== '' || wq !== ''
+  const filtered = items.filter((item) => {
+    if (q !== '' && !displayTitle(item, t).toLowerCase().includes(q)) return false
+    if (wq !== '' && !workspaceOf(item).toLowerCase().includes(wq)) return false
+    return true
+  })
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const safePage = Math.min(Math.max(1, page), pageCount)
+  const pageItems = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
   const rows: ReactElement[] = []
   rows.push(
     <div className="dsh_arch_toolbar" key="toolbar">
@@ -120,21 +145,33 @@ export function SettingsSection({ getRemote, t }: ArchivedSectionProps): ReactEl
       </button>
     </div>,
   )
+  rows.push(
+    <div className="dsh_arch_filters" key="filters">
+      <input
+        className="dsh_arch_search" type="text" placeholder={t('searchTitle')} value={query}
+        onChange={(event) => { setQuery(event.target.value); setPage(1) }}
+      />
+      <input
+        className="dsh_arch_search" type="text" placeholder={t('searchWorkspace')} value={workspaceQuery}
+        onChange={(event) => { setWorkspaceQuery(event.target.value); setPage(1) }}
+      />
+    </div>,
+  )
   if (actionError !== null) rows.push(<div className="dsh_arch_error" key="actionError">⚠ {actionError}</div>)
   if (list.error !== null) rows.push(<div className="dsh_arch_error" key="listError">⚠ {list.error}</div>)
   if (list.loading && items.length === 0) rows.push(<div className="dsh_arch_empty" key="loading">{t('loading')}</div>)
-  if (!list.loading && list.error === null && items.length === 0) {
-    rows.push(<div className="dsh_arch_empty" key="empty">{t('emptyList')}</div>)
+  if (!list.loading && list.error === null && filtered.length === 0) {
+    rows.push(<div className="dsh_arch_empty" key="empty">{hasFilter ? t('noMatch') : t('emptyList')}</div>)
   }
   rows.push(
     <div className="dsh_arch_list" key="list">
-      {items.map((item) => {
+      {pageItems.map((item) => {
         const sub = [
-          item.workspace !== null ? item.workspace.title : (item.cwd ?? ''),
+          workspaceOf(item),
           item.messages > 0 ? `${item.messages} ${t('messages')}` : '',
           fmtTime(item.updatedAt),
         ].filter((part) => part !== '').join(' · ')
-        const title = item.title !== '' ? item.title : (item.corrupt ? t('corruptTitle') : t('untitled'))
+        const title = displayTitle(item, t)
         const actions = restoreConfirmId === item.sessionId
           ? [
             <button className="dsh_arch_btn" key="confirmRestore" disabled={busy}
@@ -181,6 +218,19 @@ export function SettingsSection({ getRemote, t }: ArchivedSectionProps): ReactEl
       })}
     </div>,
   )
+  if (pageCount > 1) {
+    rows.push(
+      <div className="dsh_arch_pager" key="pager">
+        <button className="dsh_arch_btn" disabled={safePage <= 1} onClick={() => setPage(safePage - 1)}>
+          {t('prev')}
+        </button>
+        <span className="dsh_arch_page_info">{t('page', { page: String(safePage), pages: String(pageCount) })}</span>
+        <button className="dsh_arch_btn" disabled={safePage >= pageCount} onClick={() => setPage(safePage + 1)}>
+          {t('next')}
+        </button>
+      </div>,
+    )
+  }
   if (viewer.sessionId !== null) rows.push(<ArchivedViewer key="viewer" getRemote={getRemote} t={t} />)
   return <div className="dsh_arch_root">{rows}</div>
 }
