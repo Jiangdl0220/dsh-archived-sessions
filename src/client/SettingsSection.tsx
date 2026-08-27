@@ -221,13 +221,15 @@ export function SettingsSection({ getRemote, t }: ArchivedSectionProps): ReactEl
   if (pageCount > 1) {
     rows.push(
       <div className="dsh_arch_pager" key="pager">
-        <button className="dsh_arch_btn" disabled={safePage <= 1} onClick={() => setPage(safePage - 1)}>
-          {t('prev')}
-        </button>
         <span className="dsh_arch_page_info">{t('page', { page: String(safePage), pages: String(pageCount) })}</span>
-        <button className="dsh_arch_btn" disabled={safePage >= pageCount} onClick={() => setPage(safePage + 1)}>
-          {t('next')}
-        </button>
+        <div className="dsh_arch_pager_btns">
+          <button className="dsh_arch_btn" disabled={safePage <= 1} onClick={() => setPage(safePage - 1)}>
+            {t('prev')}
+          </button>
+          <button className="dsh_arch_btn" disabled={safePage >= pageCount} onClick={() => setPage(safePage + 1)}>
+            {t('next')}
+          </button>
+        </div>
       </div>,
     )
   }

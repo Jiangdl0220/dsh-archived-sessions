@@ -19,13 +19,15 @@ export const cssText = `
 .dsh_arch_toolbar {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 .dsh_arch_count {
-  font-size: 12px;
-  color: var(--dsw-alias-label-tertiary);
+  font-size: 13px;
+  font-weight: 600;
   letter-spacing: 0.02em;
+  color: var(--dsw-alias-label-secondary);
 }
 .dsh_arch_btn {
   background: transparent;
@@ -108,42 +110,54 @@ export const cssText = `
   white-space: nowrap;
 }
 .dsh_arch_filters {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 18px;
 }
 .dsh_arch_search {
-  flex: 1;
-  min-width: 160px;
-  background: color-mix(in srgb, var(--dsw-alias-bg-layer-1, var(--dsw-alias-bg-layer-2)) 60%, transparent);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  height: 30px;
+  padding: 0 10px;
+  background: color-mix(in srgb, var(--dsw-alias-bg-layer-2) 40%, transparent);
   border: 1px solid var(--dsw-alias-border-l2);
-  color: inherit;
-  border-radius: 6px;
-  padding: 5px 10px;
+  color: var(--dsw-alias-label-primary);
+  border-radius: 7px;
   font-size: 12px;
   font-family: inherit;
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 .dsh_arch_search::placeholder {
   color: var(--dsw-alias-label-dimmed);
 }
-.dsh_arch_search:focus {
+.dsh_arch_search:hover {
   border-color: var(--dsw-alias-label-tertiary);
+}
+.dsh_arch_search:focus {
+  border-color: var(--dsw-alias-state-business-primary);
+  background: color-mix(in srgb, var(--dsw-alias-bg-layer-2) 65%, transparent);
 }
 .dsh_arch_pager {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: 10px;
-  margin-top: 12px;
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px solid var(--dsw-alias-border-l2);
 }
 .dsh_arch_page_info {
   font-size: 11px;
   color: var(--dsw-alias-label-tertiary);
   letter-spacing: 0.02em;
+}
+.dsh_arch_pager_btns {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 .dsh_arch_empty {
   color: var(--dsw-alias-label-tertiary);

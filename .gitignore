@@ -3,3 +3,4 @@ lib/
 *.tgz
 *.tsbuildinfo
 .DS_Store
+.gstack/
