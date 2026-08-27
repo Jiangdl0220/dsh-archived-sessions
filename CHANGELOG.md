@@ -2,13 +2,10 @@
 
 本项目所有值得记录的变更都列在这里。格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本遵循[语义化版本](https://semver.org/lang/zh-CN/)。
 
-## [Unreleased] - 0.4.0（验收中）
-
-当前预览包：`@jiangdaoli/dsh-archived-sessions@0.4.0-accept.1`（本地 tarball 安装，验收通过后发布正式版 0.4.0）
+## [0.4.0] - 2026-08-27
 
 ### 新增
-
-- **设置导航自定义图标**：`settings.section` 注册只支持 `id/order/label`，未知 id 的导航项固定是齿轮。本版沿用第三方设置页面的做法，给「已归档会话」的导航按钮打标记并用 CSS mask 覆盖齿轮，换成归档箱图标（`index.ts` 的 `adoptSettingsNavGlyph` + `styles.ts`）。不改 DSH 契约，只在 UI 层做展示替换。
+- 设置导航「已归档会话」自定义归档箱图标，替代默认齿轮。
 
 ## [0.3.1] - 2026-08-27
 
