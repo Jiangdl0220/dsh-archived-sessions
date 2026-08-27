@@ -12,7 +12,7 @@ Once a session is archived in DSH it disappears from every surface with no offic
 
 ## Features
 
-- **Archive list**: title, owning workspace, message count and last activity at a glance; refresh supported.
+- **Archive list**: title, owning workspace, message count and last activity at a glance; refresh supported. **Since v0.3.0**: paginated at 10 per page, with instant **title / workspace** search filters.
 - **Transcript viewer**: click a session to open a read-only chat dialog (rendered above the settings panel; closing returns to the list).
   - Grouped by **turn** — each turn collapses the "working steps" (reasoning, tool calls, command executions) so the final answer stands out;
   - Markdown rendering: headings, ordered/unordered lists, blockquotes, links, code blocks (auto-pretty JSON), **tables** (horizontally scrollable);
@@ -60,6 +60,10 @@ pnpm typecheck
 - Corrupt logs (seq gaps) are marked and opened with the readable portion.
 - Restore (un-archive) writes the workspace domain's `archivedSessionIds` — the single durable home of that data, shared with the product's archive action; session data is not touched.
 - **Continue the conversation**: once restored, the session is back in the active sidebar list — open it and keep chatting (same session, same log, pick up right where it left off).
+
+## Changelog
+
+Per-version changes: [CHANGELOG.md](CHANGELOG.md); GitHub Releases carry the release notes as well.
 
 ## License
 
