@@ -561,6 +561,24 @@ export const cssText = `
   padding: 7px 12px;
   border-top: 1px dashed var(--dsw-alias-border-l2);
 }
+/* Custom glyph for the archived-sessions section in the settings nav. The
+   stock settings.section registration carries no icon field (only
+   id/order/label, with an unknown id always falling back to the default gear),
+   so — the same approach third-party settings surfaces use — the plugin marks
+   the nav button whose text matches the section label and paints its own icon
+   via a CSS mask, hiding the gear. See adoptSettingsNavGlyph() in index.ts. */
+button[data-dsh-arch-nav-icon] > svg:first-child {
+  display: none;
+}
+button[data-dsh-arch-nav-icon]::before {
+  content: '';
+  flex: none;
+  width: 16px;
+  height: 16px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23000' d='M2 3h12v2.6H2zM3.2 6.6h9.6v7.4H3.2z'/%3E%3C/svg%3E") no-repeat center / contain;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23000' d='M2 3h12v2.6H2zM3.2 6.6h9.6v7.4H3.2z'/%3E%3C/svg%3E") no-repeat center / contain;
+}
 `
 
 /**
